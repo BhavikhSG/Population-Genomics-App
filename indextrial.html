@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Population Genomics Web Application</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+        font-family: "Audiowide", sans-serif;
+        background-image: url("{{ url_for('static', filename='helixbackground.jpg')}}");
+        background-size: cover;
+        margin: 0;
+        padding: 0;
+        background-size:cover;
+        background-attachment: fixed;
+        }
+
+        /* defines styles for elements with the class 'content' */
+        .content {
+            padding: 20px;
+            margin-top: 50px; /* Adjust the margin to prevent content from overlapping with the header */
+        }
+
+        /* styles headings and paragraphs to have white coloured text */
+        h1, p {
+            color: white;
+        }
+
+        /* styles checkboxes */
+        .checkbox-container {
+      background-color: darkblue; /* Semi-transparent white background */
+      padding: 5px; /* Add padding for space */
+      margin-bottom: 5px; /* Add space between checkbox containers */
+      border-radius: 4px; /* Add rounded corners for aesthetics */
+      display: inline-block;
+      transition: background-color 0.3s ease;
+    }
+
+    /* changes checkboxes upon hover  */
+    .checkbox-container:hover {
+            background-color: white;
+            color: darkblue;
+        }
+
+    
+        /* styles search box */
+        .search-box {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        /* styles the input field of a search box */
+        .search-box input[type="text"] {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            background-color: transparent;
+            color: white;
+        }
+
+        .search-box button {
+            padding: 8px;
+            background-color: palevioletred;
+            color: darkblue;
+            border: none;
+            cursor: pointer;
+        }
+
+
+        .clustering-button {
+            padding: 5px;
+            font-size: 15px;
+            /* font-weight: bold; */
+            font-family: 'Audiowide', sans-serif;
+            background: url({{ url_for('static', filename='analysisbackground3.jpg')}});
+            background-size: cover;
+            color: white;
+            border: 4px solid white;
+            border-radius: 100px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+
+    </style>
+</head>
+
+<body>
+<!-- ----------------------------------------------------------------- -->
+    <header>
+        <h1>Population Genomics Analysis Web Application</h1>
+    </header>
+<!-- ----------------------------------------------------------------- -->
+
+
+
+<div style="background-color: #07215ae3; padding: 10px; border-radius: 5px; width: 260px; border: 5px solid white; margin-top: 20px;">
+    <h2 style="color: white; margin: 0;">Clustering Analysis</h2>
+</div>
+
+
+
+
+        <section id="clusteringSection">
+            <section id = "populationSectionclustering">
+                <p>Choose which population you would like to conduct clustering analysis on:</p>
+            <form id="populationForm" action="/PCAplot" method="post">
+                {% for population in populations %} <!-- Jinja template loop which iterates over the populations variable. inside the loop, it generates HTML for each population option -->
+                    <label class="checkbox-container"> <!-- Label element which contains a checkbox input and text for each population option. the class 'checkbox-container' provides styling for the container -->
+                        <input type="checkbox" name="populations" value="{{ population[0] }}"> <!-- input element called 'populations' which represents a checkbox. its value is set dynamically based on the population name-->
+                        {{ population[0] }}
+                        <!-- <span class="checkmark"></span>{{ population[0] }} span element provides custom checkbox appearance. population name is displayed next to the checkbox -->
+                    </label>
+                {% endfor %} <!-- ends the Jinja template for loop -->
+                <button onclick="startClustering()" class="clustering-button">Start Clustering Analysis</button>  <!-- button element triggers the startClusterin() function when clicked; initiates the clustering analysis process. class 'clustering-button' provides styling -->
+            </form>
+            </section>
+            <section id = "superpopulationSectionclustering">
+                <p>Choose which superpopulation you would like to conduct clustering analysis on:</p>
+            <form id ="superpopulationForm" action="/PCAplot" method="post">
+                {% for superpopulation in superpopulations %}
+                    <label class="checkbox-container">
+                        <input type="checkbox" name="superpopulations" value="{{ superpopulation }}">
+                        {{ superpopulation[0] }}
+                    </label>
+                {% endfor %}
+                <button onclick="startClustering()" class="clustering-button">Start Clustering Analysis</button>
+            </form>
+            </section>
+        </section>
+
+        
+
+
+
+    <!-- Container for Plotly plot -->
+    <div id="plot"></div>
+
+
+
+</body>
+</html>
+
