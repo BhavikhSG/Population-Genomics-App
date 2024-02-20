@@ -121,10 +121,12 @@
                 <p>Choose which superpopulation you would like to conduct clustering analysis on:</p>
             <form id ="superpopulationForm" action="/PCAplot" method="post">
                 {% for superpopulation in superpopulations %}
-                    <label class="checkbox-container">
-                        <input type="checkbox" name="superpopulations" value="{{ superpopulation }}">
-                        {{ superpopulation[0] }}
-                    </label>
+                    {% if superpopulation[0] in ['AFR', 'EUR', 'EAS', 'SAS', 'AMR'] %}
+                        <label class="checkbox-container">
+                            <input type="checkbox" name="superpopulations" value="{{ superpopulation[0][:3] }}">
+                            {{ superpopulation[0] }}
+                        </label>
+                    {% endif %}
                 {% endfor %}
                 <button onclick="startClustering()" class="clustering-button">Start Clustering Analysis</button>
             </form>
