@@ -43,31 +43,6 @@
             color: darkblue;
         }
 
-    
-        /* styles search box */
-        .search-box {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        /* styles the input field of a search box */
-        .search-box input[type="text"] {
-            flex: 1;
-            padding: 8px;
-            border: none;
-            background-color: transparent;
-            color: white;
-        }
-
-        .search-box button {
-            padding: 8px;
-            background-color: palevioletred;
-            color: darkblue;
-            border: none;
-            cursor: pointer;
-        }
-
 
         .clustering-button {
             padding: 5px;
@@ -84,6 +59,38 @@
         }
 
 
+
+        .snp-search-section {
+            margin-top: 60px;
+        }
+
+        .snp-search-section h2 {
+            color: white;
+            margin: 0;
+            margin-left: 0
+        }
+
+        .snp-search-section select {
+            padding: 8px;
+            border: none;
+            background-color: darkblue;
+            color: white;
+        }
+
+        .snp-search-button {
+            padding: 5px;
+            font-size: 15px;
+            /* font-weight: bold; */
+            font-family: 'Audiowide', sans-serif;
+            background: url({{ url_for('static', filename='analysisbackground3.jpg')}});
+            background-size: cover;
+            color: white;
+            border: 4px solid white;
+            border-radius: 100px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
     </style>
 </head>
 
@@ -99,7 +106,6 @@
 <div style="background-color: #07215ae3; padding: 10px; border-radius: 5px; width: 260px; border: 5px solid white; margin-top: 20px;">
     <h2 style="color: white; margin: 0;">Clustering Analysis</h2>
 </div>
-
 
 
 
@@ -134,9 +140,31 @@
 
         
 
-
     <!-- Container for Plotly plot -->
     <div id="plot"></div>
+
+
+
+
+
+<section class="snp-search-section">
+    <div style="background-color: #07215ae3; padding: 10px; border-radius: 5px; width: 450px; border: 5px solid white; margin-top: 20px; margin-bottom: 20px;">
+        <h2 style="color: white; margin: 0;">SNP Search/Genotype Retrieval</h2>
+    </div>
+    <form id="snpSearchForm" action="/snp_search" method="post">
+        <div class="search-box" style="margin-bottom: 20px;">
+            <select name="search_option" id="search_option" style="padding: 8px; border-radius: 5px; border: 3px solid white; background-color: darkblue; color: white; font-family: 'Audiowide', sans-serif;">
+                <option value="SNP_ID">SNP ID</option>
+                <option value="GENE">Gene</option>
+                <option value="GENOMIC_COORDINATES">Genomic Coordinates</option>
+            </select>
+        </div>
+        <button onclick="startGenotypeRetrieval()" class="snp-search-button">Retrieve Genotypes</button>
+    </form>
+</section>
+
+
+
 
 <script>
     function toggleSuperpopulationSection() {

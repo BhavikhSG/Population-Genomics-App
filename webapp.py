@@ -6,7 +6,7 @@ import plotly.graph_objs as go  # Import Plotly library
 import sqlite3
 import numpy as np
 from sklearn.decomposition import PCA
-from sqlalchemy import func
+from sqlalchemy import column, inspect, func
 
 
 
@@ -51,67 +51,67 @@ class VARIANTS(db.Model):
     GENE = db.Column(db.String)
     CLINICAL_RELEVANCE = db.Column(db.String)
 
-class AlleleFrequency(db.Model):
+class ALLELE_FREQUENCY(db.Model):
     __tablename__ = 'ALLELE_FREQUENCY'
     SNP_ID = db.Column(db.String, db.ForeignKey('VARIANTS.SNP_ID'), primary_key=True)
-    ACB = db.Column(db.String)
-    ASW = db.Column(db.String)
-    BEB = db.Column(db.String)
-    CDX = db.Column(db.String)
-    CEU = db.Column(db.String)
-    CHB = db.Column(db.String)
-    CHS = db.Column(db.String)
-    CLM = db.Column(db.String)
-    ESN = db.Column(db.String)
-    FIN = db.Column(db.String)
-    GBR = db.Column(db.String)
-    GIH = db.Column(db.String)
-    GWD = db.Column(db.String)
-    IBS = db.Column(db.String)
-    ITU = db.Column(db.String)
-    JPT = db.Column(db.String)
-    KHV = db.Column(db.String)
-    LWK = db.Column(db.String)
-    MSL = db.Column(db.String)
-    MXL = db.Column(db.String)
-    PEL = db.Column(db.String)
-    PJL = db.Column(db.String)
-    PUR = db.Column(db.String)
-    SIB = db.Column(db.String)
-    STU = db.Column(db.String)
-    TSI = db.Column(db.String)
-    YRI = db.Column(db.String)
+    ACB = db.Column(db.Numeric)
+    ASW = db.Column(db.Numeric)
+    BEB = db.Column(db.Numeric)
+    CDX = db.Column(db.Numeric)
+    CEU = db.Column(db.Numeric)
+    CHB = db.Column(db.Numeric)
+    CHS = db.Column(db.Numeric)
+    CLM = db.Column(db.Numeric)
+    ESN = db.Column(db.Numeric)
+    FIN = db.Column(db.Numeric)
+    GBR = db.Column(db.Numeric)
+    GIH = db.Column(db.Numeric)
+    GWD = db.Column(db.Numeric)
+    IBS = db.Column(db.Numeric)
+    ITU = db.Column(db.Numeric)
+    JPT = db.Column(db.Numeric)
+    KHV = db.Column(db.Numeric)
+    LWK = db.Column(db.Numeric)
+    MSL = db.Column(db.Numeric)
+    MXL = db.Column(db.Numeric)
+    PEL = db.Column(db.Numeric)
+    PJL = db.Column(db.Numeric)
+    PUR = db.Column(db.Numeric)
+    SIB = db.Column(db.Numeric)
+    STU = db.Column(db.Numeric)
+    TSI = db.Column(db.Numeric)
+    YRI = db.Column(db.Numeric)
 
-class GenotypeFrequencies(db.Model):
+class GENOTYPE_FREQUENCIES(db.Model):
     __tablename__ = 'GENOTYPE_FREQUENCIES'
     SNP_ID = db.Column(db.String, db.ForeignKey('VARIANTS.SNP_ID'), primary_key=True)
-    ACB = db.Column(db.String)
-    ASW = db.Column(db.String)
-    BEB = db.Column(db.String)
-    CDX = db.Column(db.String)
-    CEU = db.Column(db.String)
-    CHB = db.Column(db.String)
-    CHS = db.Column(db.String)
-    CLM = db.Column(db.String)
-    ESN = db.Column(db.String)
-    FIN = db.Column(db.String)
-    GBR = db.Column(db.String)
-    GIH = db.Column(db.String)
-    GWD = db.Column(db.String)
-    IBS = db.Column(db.String)
-    ITU = db.Column(db.String)
-    JPT = db.Column(db.String)
-    KHV = db.Column(db.String)
-    LWK = db.Column(db.String)
-    MSL = db.Column(db.String)
-    MXL = db.Column(db.String)
-    PEL = db.Column(db.String)
-    PJL = db.Column(db.String)
-    PUR = db.Column(db.String)
-    SIB = db.Column(db.String)
-    STU = db.Column(db.String)
-    TSI = db.Column(db.String)
-    YRI = db.Column(db.String)
+    ACB = db.Column(db.Numeric)
+    ASW = db.Column(db.Numeric)
+    BEB = db.Column(db.Numeric)
+    CDX = db.Column(db.Numeric)
+    CEU = db.Column(db.Numeric)
+    CHB = db.Column(db.Numeric)
+    CHS = db.Column(db.Numeric)
+    CLM = db.Column(db.Numeric)
+    ESN = db.Column(db.Numeric)
+    FIN = db.Column(db.Numeric)
+    GBR = db.Column(db.Numeric)
+    GIH = db.Column(db.Numeric)
+    GWD = db.Column(db.Numeric)
+    IBS = db.Column(db.Numeric)
+    ITU = db.Column(db.Numeric)
+    JPT = db.Column(db.Numeric)
+    KHV = db.Column(db.Numeric)
+    LWK = db.Column(db.Numeric)
+    MSL = db.Column(db.Numeric)
+    MXL = db.Column(db.Numeric)
+    PEL = db.Column(db.Numeric)
+    PJL = db.Column(db.Numeric)
+    PUR = db.Column(db.Numeric)
+    SIB = db.Column(db.Numeric)
+    STU = db.Column(db.Numeric)
+    TSI = db.Column(db.Numeric)
+    YRI = db.Column(db.Numeric)
 
 
 ##Flask routes to handle HTTP requests:
@@ -120,9 +120,7 @@ class GenotypeFrequencies(db.Model):
 def index():
     populations = db.session.query(PCA.POPULATION).distinct().all() ##query the db for the 'PCA' table to retrieve distinct values within the 'POPULATION' column. '.all' executes query + returns results as a list.
     superpopulations = db.session.query(PCA.SUPERPOPULATION).distinct().all() ##NEW EDIT
-    return render_template("indextrial.html", populations=populations, superpopulations=superpopulations) ##NEW EDIT - SUPERPOPULATIONS
-
-
+    return render_template("indextrial.html", populations=populations, superpopulations=superpopulations)
 
 @app.route('/PCAplot', methods=['POST'])
 def plot():
