@@ -12,7 +12,7 @@ from sqlalchemy import func
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '78y23hryufsbu!kjnf7&'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:/Users/xavia/OneDrive/Documents/Masters-PG/Bioinformatics MSc/Software Development Group Project/WebApp/instance/DatabaseTest 2.db' ##configures the URI for connecting to the db; specifies path to the SQLite db file
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:/Users/xavia/OneDrive/Documents/Masters-PG/Bioinformatics MSc/Software Development Group Project/WebApp/instance/DatabaseTest 3.db' ##configures the URI for connecting to the db; specifies path to the SQLite db file
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 
@@ -36,13 +36,6 @@ class POP_GROUP(db.Model):
     POPULATION_NAME = db.Column(db.String)
     pca = db.relationship('PCA', backref='population', lazy=True)
 
-##GOT RID OF THIS TABLE:
-# class SAMPLE_POP(db.Model):
-#     __tablename__ = 'SAMPLE_POP'
-#     SAMPLE_ID = db.Column(db.Integer, primary_key=True, unique=True)
-#     POPULATION_CODE = db.Column(db.String)
-#     SUPERPOPULATION = db.Column(db.String, db.ForeignKey('SUPERPOP.SUPERPOPULATION_ID'))
-
 class SUPERPOP(db.Model):
     __tablename__ = 'SUPERPOP'
     SUPERPOPULATION_ID = db.Column(db.String, primary_key=True, unique=True)
@@ -58,81 +51,76 @@ class VARIANTS(db.Model):
     GENE = db.Column(db.String)
     CLINICAL_RELEVANCE = db.Column(db.String)
 
-##need to make ALLELE_FREQUENCY and GENOTYPE_FREQUENCIES table.
-# class ALLELE_FREQUENCY(db.Model):
-#     __tablename__='ALLELE_FREQUENCY'
-#     SNP_ID = db.Column(db.String, primary_key=TRUE, db.ForeignKey('VARIANTS.SNP_ID'))
+class AlleleFrequency(db.Model):
+    __tablename__ = 'ALLELE_FREQUENCY'
+    SNP_ID = db.Column(db.String, db.ForeignKey('VARIANTS.SNP_ID'), primary_key=True)
+    ACB = db.Column(db.String)
+    ASW = db.Column(db.String)
+    BEB = db.Column(db.String)
+    CDX = db.Column(db.String)
+    CEU = db.Column(db.String)
+    CHB = db.Column(db.String)
+    CHS = db.Column(db.String)
+    CLM = db.Column(db.String)
+    ESN = db.Column(db.String)
+    FIN = db.Column(db.String)
+    GBR = db.Column(db.String)
+    GIH = db.Column(db.String)
+    GWD = db.Column(db.String)
+    IBS = db.Column(db.String)
+    ITU = db.Column(db.String)
+    JPT = db.Column(db.String)
+    KHV = db.Column(db.String)
+    LWK = db.Column(db.String)
+    MSL = db.Column(db.String)
+    MXL = db.Column(db.String)
+    PEL = db.Column(db.String)
+    PJL = db.Column(db.String)
+    PUR = db.Column(db.String)
+    SIB = db.Column(db.String)
+    STU = db.Column(db.String)
+    TSI = db.Column(db.String)
+    YRI = db.Column(db.String)
+
+class GenotypeFrequencies(db.Model):
+    __tablename__ = 'GENOTYPE_FREQUENCIES'
+    SNP_ID = db.Column(db.String, db.ForeignKey('VARIANTS.SNP_ID'), primary_key=True)
+    ACB = db.Column(db.String)
+    ASW = db.Column(db.String)
+    BEB = db.Column(db.String)
+    CDX = db.Column(db.String)
+    CEU = db.Column(db.String)
+    CHB = db.Column(db.String)
+    CHS = db.Column(db.String)
+    CLM = db.Column(db.String)
+    ESN = db.Column(db.String)
+    FIN = db.Column(db.String)
+    GBR = db.Column(db.String)
+    GIH = db.Column(db.String)
+    GWD = db.Column(db.String)
+    IBS = db.Column(db.String)
+    ITU = db.Column(db.String)
+    JPT = db.Column(db.String)
+    KHV = db.Column(db.String)
+    LWK = db.Column(db.String)
+    MSL = db.Column(db.String)
+    MXL = db.Column(db.String)
+    PEL = db.Column(db.String)
+    PJL = db.Column(db.String)
+    PUR = db.Column(db.String)
+    SIB = db.Column(db.String)
+    STU = db.Column(db.String)
+    TSI = db.Column(db.String)
+    YRI = db.Column(db.String)
 
 
-
-# DATABASE = os.path.join(app.instance_path, 'New DB.db') ##define variable DATABASE. only need to 
-    #include this if going to call on this variable 'DATABASE' later on in the application.
-##configuring the database connection for the Flask application by providing the path to the SQLite
-##database file within the instance folder.
-##this db path is then used by the webapp to connect to the SQLite db and query/modify the data
-
-
-##Flask routes to handle HTTP requests
+##Flask routes to handle HTTP requests:
 
 @app.route('/') ##'/' route = index pg
 def index():
     populations = db.session.query(PCA.POPULATION).distinct().all() ##query the db for the 'PCA' table to retrieve distinct values within the 'POPULATION' column. '.all' executes query + returns results as a list.
     superpopulations = db.session.query(PCA.SUPERPOPULATION).distinct().all() ##NEW EDIT
     return render_template("indextrial.html", populations=populations, superpopulations=superpopulations) ##NEW EDIT - SUPERPOPULATIONS
-
-
-
-# @app.route('/PCAplot', methods=['POST']) ##'/PCAplot' route handles POST requests to generate PCA plot
-# def plot():
-#     selected_populations = request.form.getlist('populations')
-#     # selected_superpopulations = [superpopulation[0] for superpopulation in selected_superpopulations]
-#     selected_superpopulations = request.form.getlist('superpopulations') ##NEW EDIT
-#     # selected_superpopulations = [superpopulation[0] for superpopulation in request.form.getlist('superpopulations')]
-#     traces = []
-
-#     for i, population in enumerate(selected_populations):
-#         print(f"Selected population: {population}") ##
-#         pca_data = PCA.query.filter_by(POPULATION=population).all() ##
-#         print(f"PCA data for {population}: {pca_data}") ##
-#         pca_data = PCA.query.filter_by(POPULATION=population).all() ##queries 'PCA' table to retrieve records where the 'POPULATION' column matches the specified 'population' value(which user selected - form input checkboxes)
-#         pc1_values = [entry.PC1 for entry in pca_data]
-#         pc2_values = [entry.PC2 for entry in pca_data]
-#         color = f'hsv({i * (360 // len(selected_populations))}, 100%, 100%)' ##generate a unique color for each population
-#         trace = go.Scatter(x=pc1_values, y=pc2_values, mode='markers', ##create a scatter plot trace for each population
-#                         marker=dict(color=color, size=10),
-#                         name=population)
-#         traces.append(trace)
-
-
-#     selected_superpopulations = [superpopulation[0] for superpopulation in selected_superpopulations]
-#     # selected_superpopulations = [superpopulation for superpopulation in selected_superpopulations if superpopulation[0] in ['AFR', 'EUR', 'EAS', 'SAS', 'AMR']]
-#     for j, superpopulation in enumerate(selected_superpopulations):
-#         print(f"Selected superpopulation: {superpopulation}") ##
-#         pca_data = PCA.query.filter_by(SUPERPOPULATION=superpopulation).all()
-#         # pca_data = PCA.query.filter(PCA.SUPERPOPULATION.in_(selected_superpopulations)).all()
-#         ## pca_data = PCA.query.all()
-#         ## print("All PCA Data:", pca_data)
-#         # pca_data = PCA.query.filter(PCA.SUPERPOPULATION == superpopulation).all()
-#         # pca_data = PCA.query.filter(PCA.SUPERPOPULATION.in_(selected_superpopulations)).all() ##
-#         print(f"PCA data for {superpopulation}: {pca_data}") ##
-#         pc1_values = [entry.PC1 for entry in pca_data]
-#         pc2_values = [entry.PC2 for entry in pca_data]
-#         color = f'hsv({j * (360 // len(selected_superpopulations))}, 100%, 100%)'
-#         trace = go.Scatter(x=pc1_values, y=pc2_values, mode='markers',
-#                         marker=dict(color=color, size=10),
-#                         name=superpopulation)
-#         traces.append(trace)
-
-#     layout = go.Layout(title=None, xaxis=dict(title='PC1'), yaxis=dict(title='PC2'))
-#     fig = go.Figure(data=traces, layout=layout)
-#     plot_json = fig.to_json()
-
-#     return render_template('plot.html', plot_json=plot_json)
-
-# ------------------------------------------------------------------------------
-
-
-
 
 
 
@@ -172,56 +160,6 @@ def plot():
     plot_json = fig.to_json()
 
     return render_template('plot.html', plot_json=plot_json)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# ----------------------------------------------------------
-
-# @app.route('/PCAplot', methods=['POST'])
-# def plot():
-#     selected_populations = request.form.getlist('populations')
-#     selected_superpopulations = request.form.getlist('superpopulations')
-#     print(selected_populations)
-#     print(selected_superpopulations)
-#     traces = []
-
-#     for population in selected_populations:
-#         pca_data = PCA.query.filter_by(POPULATION=population).all()
-#         pc1_values = [entry.PC1 for entry in pca_data]
-#         pc2_values = [entry.PC2 for entry in pca_data]
-#         trace = go.Scatter(x=pc1_values, y=pc2_values, mode='markers', name=population)
-#         traces.append(trace)
-
-#     for superpopulation in selected_superpopulations:
-#         pca_data = PCA.query.filter_by(SUPERPOPULATION=superpopulation).all()
-#         pc1_values = [entry.PC1 for entry in pca_data]
-#         pc2_values = [entry.PC2 for entry in pca_data]
-#         trace = go.Scatter(x=pc1_values, y=pc2_values, mode='markers', name=superpopulation)
-#         traces.append(trace)
-
-#     layout = go.Layout(title=None, xaxis=dict(title='PC1'), yaxis=dict(title='PC2'))
-#     fig = go.Figure(data=traces, layout=layout)
-#     plot_json = fig.to_json()
-
-#     return render_template('plot.html', plot_json=plot_json)
 
 
 

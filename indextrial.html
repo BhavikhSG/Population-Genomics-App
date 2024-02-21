@@ -16,7 +16,7 @@
         background-attachment: fixed;
         }
 
-        /* defines styles for elements with the class 'content' */
+        defines styles for elements with the class 'content'
         .content {
             padding: 20px;
             margin-top: 50px; /* Adjust the margin to prevent content from overlapping with the header */
@@ -109,9 +109,8 @@
             <form id="populationForm" action="/PCAplot" method="post">
                 {% for population in populations %} <!-- Jinja template loop which iterates over the populations variable. inside the loop, it generates HTML for each population option -->
                     <label class="checkbox-container"> <!-- Label element which contains a checkbox input and text for each population option. the class 'checkbox-container' provides styling for the container -->
-                        <input type="checkbox" name="populations" value="{{ population[0] }}"> <!-- input element called 'populations' which represents a checkbox. its value is set dynamically based on the population name-->
+                        <input type="checkbox" name="populations" value="{{ population[0] }}" onclick="toggleSuperpopulationSection()"> <!-- input element called 'populations' which represents a checkbox. its value is set dynamically based on the population name-->
                         {{ population[0] }}
-                        <!-- <span class="checkmark"></span>{{ population[0] }} span element provides custom checkbox appearance. population name is displayed next to the checkbox -->
                     </label>
                 {% endfor %} <!-- ends the Jinja template for loop -->
                 <button onclick="startClustering()" class="clustering-button">Start Clustering Analysis</button>  <!-- button element triggers the startClusterin() function when clicked; initiates the clustering analysis process. class 'clustering-button' provides styling -->
@@ -123,7 +122,7 @@
                 {% for superpopulation in superpopulations %}
                     {% if superpopulation[0] in ['AFR', 'EUR', 'EAS', 'SAS', 'AMR'] %}
                         <label class="checkbox-container">
-                            <input type="checkbox" name="superpopulations" value="{{ superpopulation[0][:3] }}">
+                            <input type="checkbox" name="superpopulations" value="{{ superpopulation[0][:3] }}" onclick="togglePopulationSection()">
                             {{ superpopulation[0] }}
                         </label>
                     {% endif %}
@@ -136,9 +135,20 @@
         
 
 
-
     <!-- Container for Plotly plot -->
     <div id="plot"></div>
+
+<script>
+    function toggleSuperpopulationSection() {
+        var superpopulationSection = document.getElementById("superpopulationSectionclustering");
+        superpopulationSection.style.display = document.querySelector('[name="populations"]:checked') ? "none" : "block";
+    }
+
+    function togglePopulationSection() {
+        var populationSection = document.getElementById("populationSectionclustering");
+        populationSection.style.display = document.querySelector('[name="superpopulations"]:checked') ? "none" : "block";
+    }
+</script>
 
 
 
