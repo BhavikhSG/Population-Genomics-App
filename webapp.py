@@ -120,7 +120,8 @@ class GENOTYPE_FREQUENCIES(db.Model):
 def index():
     populations = db.session.query(PCA.POPULATION).distinct().all() ##query the db for the 'PCA' table to retrieve distinct values within the 'POPULATION' column. '.all' executes query + returns results as a list.
     superpopulations = db.session.query(PCA.SUPERPOPULATION).distinct().all() ##NEW EDIT
-    return render_template("indextrial.html", populations=populations, superpopulations=superpopulations)
+    columns = ALLELE_FREQUENCY.__table__.columns.keys()[1:]  # Exclude the first column (SNP_ID)
+    return render_template("indextrial.html", populations=populations, superpopulations=superpopulations, columns=columns)
 
 @app.route('/PCAplot', methods=['POST'])
 def plot():

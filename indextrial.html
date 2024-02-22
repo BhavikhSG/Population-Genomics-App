@@ -146,8 +146,8 @@
 
 
 
-
-<section class="snp-search-section">
+<!-- THIS ONE WORKS -->
+<!-- <section class="snp-search-section">
     <div style="background-color: #07215ae3; padding: 10px; border-radius: 5px; width: 450px; border: 5px solid white; margin-top: 20px; margin-bottom: 20px;">
         <h2 style="color: white; margin: 0;">SNP Search/Genotype Retrieval</h2>
     </div>
@@ -161,7 +161,81 @@
         </div>
         <button onclick="startGenotypeRetrieval()" class="snp-search-button">Retrieve Genotypes</button>
     </form>
+</section> -->
+
+
+
+<!-- <section class="snp-search-section" id="snpSearchSection">
+    <div style="background-color: #07215ae3; padding: 10px; border-radius: 5px; width: 450px; border: 5px solid white; margin-top: 20px; margin-bottom: 20px;">
+        <h2 style="color: white; margin: 0;">SNP Search/Genotype Retrieval</h2>
+    </div>
+    <form id="snpSearchForm" action="/snp_search" method="post">
+        <div class="search-box" style="margin-bottom: 20px;">
+            <label for="search_option">Search Option:</label>
+            <select name="search_option" id="search_option" style="padding: 8px; border-radius: 5px; border: 3px solid white; background-color: darkblue; color: white; font-family: 'Audiowide', sans-serif;">
+                <option value="SNP_ID">SNP ID</option>
+                <option value="GENE">Gene</option>
+                <option value="GENOMIC_COORDINATES">Genomic Coordinates</option>
+            </select>
+        </div>
+        <!-- Checkbox options for SNP search populations -->
+        <!-- {% for snp_search_population in snp_search_populations %}
+        <label class="checkbox-container">
+            <input type="checkbox" name="snp_search_populations" value="{{ snp_search_population }}" onclick="toggleSNPSection()">
+            {{ snp_search_population }}
+        </label>
+        {% endfor %}
+        <button type="submit" class="snp-search-button">Search</button>
+    </form>
+    <div id="searchResults"></div>
+</section> -->
+
+
+
+
+<section class="snp-search-section" id="snpSearchSection">
+    <div style="background-color: #07215ae3; padding: 10px; border-radius: 5px; width: 450px; border: 5px solid white; margin-top: 20px; margin-bottom: 20px;">
+        <h2 style="color: white; margin: 0;">SNP Search/Genotype Retrieval</h2>
+    </div>
+    <form id="snpSearchForm" action="/snp_search" method="post">
+        <p>Choose one of three methods to search by:</p>
+        <div class="search-box">
+            <select name="search_option" id="search_option" style="padding: 8px; border-radius: 5px; border: 3px solid white; background-color: darkblue; color: white; font-family: 'Audiowide', sans-serif;">
+                <option value="SNP_ID">SNP ID</option>
+                <option value="GENE">Gene</option>
+                <option value="GENOMIC_COORDINATES">Genomic Coordinates</option>
+            </select>
+        </div>
+        <div class="search-box">
+            <label for="snp_id">Enter SNP ID:</label>
+            <input type="text" id="snp_id" name="snp_id">
+        </div>
+        <div class="search-box">
+            <label for="gene_name">Enter Gene Name:</label>
+            <input type="text" id="gene_name" name="gene_name">
+        </div>
+        <div class="search-box">
+            <label for="genomic_coordinates">Enter Genomic Coordinates:</label>
+            <input type="number" id="genomic_coordinates" name="genomic_coordinates">
+        </div>
+
+        <!-- Population checkboxes -->
+        <div class="search-box" style="margin-bottom: 20px;">
+            {% for column in columns %}
+                <label class="checkbox-container">
+                    <input type="checkbox" name="populations" value="{{ column }}">
+                    {{ column }}
+                </label>
+            {% endfor %}
+        </div>
+        
+        <button type="submit" class="snp-search-button">Search</button>
+    </form>
+    <div id="searchResults"></div>
 </section>
+
+
+
 
 
 
