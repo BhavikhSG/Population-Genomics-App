@@ -121,7 +121,7 @@ def index():
     populations = db.session.query(PCA.POPULATION).distinct().all() ##query the db for the 'PCA' table to retrieve distinct values within the 'POPULATION' column. '.all' executes query + returns results as a list.
     superpopulations = db.session.query(PCA.SUPERPOPULATION).distinct().all() ##NEW EDIT
     columns = ALLELE_FREQUENCY.__table__.columns.keys()[1:]  # Exclude the first column (SNP_ID)
-    return render_template("indextrial.html", populations=populations, superpopulations=superpopulations, columns=columns)
+    return render_template("indextrialSNPsearchClinRelev.html", populations=populations, superpopulations=superpopulations, columns=columns)
 
 @app.route('/PCAplot', methods=['POST'])
 def plot():
@@ -159,6 +159,78 @@ def plot():
     plot_json = fig.to_json()
 
     return render_template('plot.html', plot_json=plot_json)
+
+
+# @app.route('/snp_search', methods=['POST'])
+# def snp_search():
+#     # Extract values from the form submission
+#     search_option = request.form.get('search_option')
+#     snp_selected_populations = request.form.getlist('snp_selected_populations')
+
+#     # Perform database queries to retrieve allele frequencies and genotype frequencies
+#     allele_frequencies = {}
+#     genotype_frequencies = {}
+#     for population in snp_selected_populations:
+#         allele_frequency_query = ALLELE_FREQUENCY.query.filter_by(SNP_ID=search_option).first()
+#         if allele_frequency_query:
+#             allele_frequencies[population] = getattr(allele_frequency_query, population)
+
+#         genotype_frequency_query = GENOTYPE_FREQUENCIES.query.filter_by(SNP_ID=search_option).first()
+#         if genotype_frequency_query:
+#             genotype_frequencies[population] = getattr(genotype_frequency_query, population)
+
+#     # Query for clinical relevance
+#     clinical_relevance_query = VARIANTS.query.filter_by(SNP_ID=search_option).first()
+#     clinical_relevance = clinical_relevance_query.CLINICAL_RELEVANCE if clinical_relevance_query else None
+
+#     # Format the results
+#     results = {
+#         'Allele Frequency': allele_frequencies,
+#         'Genotype Frequency': genotype_frequencies,
+#         'Clinical Relevance': clinical_relevance
+#     }
+
+#     # Return the results in JSON format
+#     return jsonify(results)
+
+
+
+@app.route('/snp_search', methods=['POST'])
+def snp_search():
+    # Extract form data
+    search_option = request.form.get('search_option')
+    search_value = request.form.get('search_value')  # Assuming the input fields are named after the search option
+    selected_populations = request.form.getlist('snp-populations')  # Retrieve selected populations
+
+    # Determine the column to search in the VARIANTS table
+    if search_option == 'SNP ID':
+        search_column = VARIANTS.SNP_ID
+    elif search_option == 'Genomic Coordinates':
+        search_column = VARIANTS.POS
+    elif search_option == 'Gene':
+        search_column = VARIANTS.GENE
+    else:
+        # Handle invalid search option
+        return 'Invalid search option', 400
+
+    # Query the database to retrieve clinical relevance
+    clinical_relevance = db.session.query(VARIANTS.CLINICAL_RELEVANCE).filter(search_column == search_value).first()
+
+    # if clinical_relevance:
+    #     return f'Clinical Relevance: {clinical_relevance[0]}'
+    # else:
+    #     return 'Clinical relevance not found'
+    
+
+    if search_option == 'SNP ID':
+        allele_frequency_results = ALLELE_FREQUENCY.query.filter_by(SNP_ID=search_value).filter(ALLELE_FREQUENCY.POPULATION_ID.in_(selected_populations)).all()
+        genotype_frequency_results = GENOTYPE_FREQUENCIES.query.filter_by(SNP_ID=search_value).filter(GENOTYPE_FREQUENCIES.POPULATION_ID.in_(selected_populations)).all()
+    else:
+        # Initialize empty lists if the search option is not 'SNP ID'
+        allele_frequency_results = []
+        genotype_frequency_results = []
+
+    return render_template('snp_search_results.html', clinical_relevance=clinical_relevance, allele_frequency_results=allele_frequency_results, genotype_frequency_results=genotype_frequency_results) 
 
 
 
