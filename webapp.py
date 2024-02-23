@@ -195,6 +195,44 @@ def plot():
 
 
 
+
+# @app.route('/snp_search', methods=['POST'])
+# def snp_search():
+#     search_option = request.form.get('search_option')
+#     search_value = request.form.get('search_value')
+#     selected_populations = request.form.getlist('snp-populations')
+
+#     if search_option == 'SNP ID':
+#         search_column = VARIANTS.SNP_ID
+#     elif search_option == 'Genomic Coordinates':
+#         search_column = VARIANTS.POS
+#     elif search_option == 'Gene':
+#         search_column = VARIANTS.GENE
+#     else:
+#         return 'Invalid search option', 400
+
+#     clinical_relevance = db.session.query(VARIANTS.CLINICAL_RELEVANCE).filter(search_column == search_value).first()
+
+#     if search_option == 'SNP ID':
+#         allele_frequency_results = ALLELE_FREQUENCY.query.filter_by(SNP_ID=search_value).filter(ALLELE_FREQUENCY.POPULATION_ID.in_(selected_populations)).all()
+#         genotype_frequency_results = GENOTYPE_FREQUENCIES.query.filter_by(SNP_ID=search_value).filter(GENOTYPE_FREQUENCIES.POPULATION_ID.in_(selected_populations)).all()
+#     else:
+#         allele_frequency_results = []
+#         genotype_frequency_results = []
+
+#     return render_template('snp_search_results.html', clinical_relevance=clinical_relevance, allele_frequency_results=allele_frequency_results, genotype_frequency_results=genotype_frequency_results)
+
+
+
+
+
+
+
+
+
+
+##CURRENTLY TESTING CODE:
+# # --------------------------------------------------------------------THIS IS THE ACC CODE:
 @app.route('/snp_search', methods=['POST'])
 def snp_search():
     # Extract form data
@@ -216,21 +254,91 @@ def snp_search():
     # Query the database to retrieve clinical relevance
     clinical_relevance = db.session.query(VARIANTS.CLINICAL_RELEVANCE).filter(search_column == search_value).first()
 
-    # if clinical_relevance:
-    #     return f'Clinical Relevance: {clinical_relevance[0]}'
-    # else:
-    #     return 'Clinical relevance not found'
-    
 
     if search_option == 'SNP ID':
-        allele_frequency_results = ALLELE_FREQUENCY.query.filter_by(SNP_ID=search_value).filter(ALLELE_FREQUENCY.POPULATION_ID.in_(selected_populations)).all()
-        genotype_frequency_results = GENOTYPE_FREQUENCIES.query.filter_by(SNP_ID=search_value).filter(GENOTYPE_FREQUENCIES.POPULATION_ID.in_(selected_populations)).all()
-    else:
-        # Initialize empty lists if the search option is not 'SNP ID'
         allele_frequency_results = []
         genotype_frequency_results = []
+        for population_code in selected_populations:
+            print("Population Code:", population_code) # Add this line to inspect the population_code variable
+            # Get the population column dynamically
+            population_column = getattr(ALLELE_FREQUENCY, population_code)
+            # Query the ALLELE_FREQUENCY table for the SNP ID and population column
+            allele_frequency_data = ALLELE_FREQUENCY.query.filter_by(SNP_ID=search_value).with_entities(ALLELE_FREQUENCY.SNP_ID, population_column).first()
+            # Append the SNP ID and population frequencies to the results list
+            if allele_frequency_data:
+                allele_frequency_results.append((allele_frequency_data[0], {population_code: allele_frequency_data[1]}))
+            # population_column_genotype = getattr(GENOTYPE_FREQUENCIES, population_code)
+            # genotype_frequency_data = GENOTYPE_FREQUENCIES.query.filter_by(SNP_ID=search_value).with_entities(GENOTYPE_FREQUENCIES.SNP_ID, population_column_genotype).first()
+            # if genotype_frequency_data:
+            #     genotype_frequency_results.append((genotype_frequency_data[0], {population_code: genotype_frequency_data[1]}))
+        return render_template('snp_search_results.html', clinical_relevance=clinical_relevance, allele_frequency_results=allele_frequency_results, genotype_frequency_results=genotype_frequency_results)
 
-    return render_template('snp_search_results.html', clinical_relevance=clinical_relevance, allele_frequency_results=allele_frequency_results, genotype_frequency_results=genotype_frequency_results) 
+
+        # for population_code in selected_populations:
+        #     population_column = getattr(GENOTYPE_FREQUENCIES, population_code)
+        #     genotype_frequency_data = GENOTYPE_FREQUENCIES.query.filter_by(SNP_ID=search_value).with_entities(GENOTYPE_FREQUENCIES.SNP_ID, population_column).first()
+        #     if genotype_frequency_results:
+        #         genotype_frequency_results.append((genotype_frequency_data[0], {population_code: genotype_frequency_data[1]}))
+            
+            # if genotype_frequency_data and genotype_frequency_data[1] is not None:
+            #     genotype_frequency_results.append((genotype_frequency_data[0], {population_code: genotype_frequency_data[1]}))
+            # else:
+            #     genotype_frequency_results.append((genotype_frequency_data[0], {population_code: None}))
+
+
+        # logging.debug(f"Allele frequency results: {allele_frequency_results}")
+        # logging.debug(f"Genotype frequency results: {genotype_frequency_results}")
+       
+        # return render_template('snp_search_results.html', clinical_relevance=clinical_relevance, allele_frequency_results=allele_frequency_results, genotype_frequency_results=genotype_frequency_results)
+
+
+
+
+# # ---------------------------------------------------------
+
+
+
+
+
+
+# # # --------------------------------------------------------------------THIS IS THE ACC CODE:
+# @app.route('/snp_search', methods=['POST'])
+# def snp_search():
+#     # Extract form data
+#     search_option = request.form.get('search_option')
+#     search_value = request.form.get('search_value')  # Assuming the input fields are named after the search option
+#     selected_populations = request.form.getlist('snp-populations')  # Retrieve selected populations
+
+#     # Determine the column to search in the VARIANTS table
+#     if search_option == 'SNP ID':
+#         search_column = VARIANTS.SNP_ID
+#     elif search_option == 'Genomic Coordinates':
+#         search_column = VARIANTS.POS
+#     elif search_option == 'Gene':
+#         search_column = VARIANTS.GENE
+#     else:
+#         # Handle invalid search option
+#         return 'Invalid search option', 400
+
+#     # Query the database to retrieve clinical relevance
+#     clinical_relevance = db.session.query(VARIANTS.CLINICAL_RELEVANCE).filter(search_column == search_value).first()
+
+#     # if clinical_relevance:
+#     #     return f'Clinical Relevance: {clinical_relevance[0]}'
+#     # else:
+#     #     return 'Clinical relevance not found'
+    
+
+#     if search_option == 'SNP ID':
+#         allele_frequency_results = ALLELE_FREQUENCY.query.filter_by(SNP_ID=search_value).filter(ALLELE_FREQUENCY.POPULATION_ID.in_(selected_populations)).all()
+#         genotype_frequency_results = GENOTYPE_FREQUENCIES.query.filter_by(SNP_ID=search_value).filter(GENOTYPE_FREQUENCIES.POPULATION_ID.in_(selected_populations)).all()
+#     else:
+#         # Initialize empty lists if the search option is not 'SNP ID'
+#         allele_frequency_results = []
+#         genotype_frequency_results = []
+
+#     return render_template('snp_search_results.html', clinical_relevance=clinical_relevance, allele_frequency_results=allele_frequency_results, genotype_frequency_results=genotype_frequency_results)
+# # # ---------------------------------------------------------
 
 
 
