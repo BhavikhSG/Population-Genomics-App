@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/static/SLITAZ (2).gif" type="image/gif">
+    <title>SNP Table</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: rgb(4, 4, 92);
+            color: white;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            color: white;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: red;
+        }
+
+        td {
+            vertical-align: top;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .pagination a {
+            cursor: pointer;
+            color: white;
+            background-color: darkblue;
+            padding: 10px 20px;
+            border-radius: 20px;
+            transition: background-color 0.3s ease;
+            outline: 3px solid white;
+        }
+
+        .pagination a:hover {
+            background-color: rgb(4, 4, 53);
+        }
+
+        #page-info {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/">
+            <img src="/static/SLITAZ (2).gif" alt="Home" style="width: 70px; height: 70px;">
+        </a>
+        <h1>SNP Data Retrieval Results | {{ search_value }}</h1>
+    </header>
+    <table>
+        <thead>
+            <tr>
+                <th>SNP ID</th>
+                <th>POS</th>
+                <th>ALT</th>
+                <th>REF</th>
+                <th>GENE</th>
+                <th>CLINICAL RELEVANCE</th>
+                <th>AF (ALT : REF)</th>
+                <th>GF (Homozygous ALT: Heterozygous: Homozygous REF) </th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+            {% for row in result %}
+                <tr class="table-row">
+                    <td>{{ row[0].SNP_ID }}</td>
+                    <td>{{ row[0].POS }}</td>
+                    <td>{{ row[0].ALT }}</td>
+                    <td>{{ row[0].REF }}</td>
+                    <td>{{ row[0].GENE }}</td>
+                    <td>{{ row[0].CLINICAL_RELEVANCE }}</td>
+                    <td>
+                        {% for i in range(selected_populations|length) %}
+                            {% set allele_frequency = row[8+i] %}
+                            <strong>{{ selected_populations[i] }}</strong>: {{ allele_frequency.split(':')[0] }}&nbsp;:&nbsp;{{ allele_frequency.split(':')[1] }}<br>
+                        {% endfor %}                    
+                    </td>
+                    <td>
+                        {% for i in range(selected_populations|length) %}
+                            <strong>{{ selected_populations[i] }}</strong>: {{ row[8+selected_populations|length+i] }}<br>
+                        {% endfor %}
+                    </td>                    
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+
+    
+
+    <div class="pagination">
+        <a id="prev-btn" onclick="showPrev()">Previous</a>
+        <span id="page-info">Page 1</span>
+        <a id="next-btn" onclick="showNext()">Next</a>
+    </div>
+
+    <script>
+        var rowsPerPage = 30;
+        var currentPage = 1;
+        var totalRows = document.getElementsByClassName('table-row').length;
+
+        function showRows(start, end) {
+            var rows = document.getElementsByClassName('table-row');
+            for (var i = 0; i < rows.length; i++) {
+                rows[i].style.display = (i >= start && i < end) ? 'table-row' : 'none';
+            }
+        }
+
+        function showPageInfo() {
+            var pageInfo = document.getElementById('page-info');
+            pageInfo.textContent = 'Page ' + currentPage;
+        }
+
+        function showPrev() {
+            if (currentPage > 1) {
+                currentPage--;
+                var start = (currentPage - 1) * rowsPerPage;
+                var end = currentPage * rowsPerPage;
+                showRows(start, end);
+                showPageInfo();
+            }
+        }
+
+        function showNext() {
+            if (currentPage < Math.ceil(totalRows / rowsPerPage)) {
+                currentPage++;
+                var start = (currentPage - 1) * rowsPerPage;
+                var end = currentPage * rowsPerPage;
+                showRows(start, end);
+                showPageInfo();
+            }
+        }
+
+        // Initial display
+        showRows(0, rowsPerPage);
+        showPageInfo();
+    </script>
+</body>
+</html>
