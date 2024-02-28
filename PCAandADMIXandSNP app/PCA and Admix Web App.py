@@ -196,6 +196,7 @@ def plot():
 
 
 ##### ADMIXTURE
+#colours of the 5 ancestors for K=5
 cluster_colors = {
     'V1': 'blue',
     'V2': 'green',
@@ -205,30 +206,33 @@ cluster_colors = {
 }
 ###POPULATION QUERY
 def query_populations(selected_populations):
+ #if no populations selected return none
     if not selected_populations:
         return None
-    
-    data = {'Population': [], **{f'V{i}': [] for i in range(1, 6)}}
 
+#dictionary to contain populations and the values for V1 to V5 
+    data = {'Population': [], **{f'V{i}': [] for i in range(1, 6)}}
+#iterate through each of the selected population and query the ADMIXTURE(joined with samplepop) data
     for population in selected_populations:
         admixture_data = db.session.query(ADMIXTURE.V1, ADMIXTURE.V2, ADMIXTURE.V3, ADMIXTURE.V4, ADMIXTURE.V5) \
             .join(SAMPLE_POP, ADMIXTURE.SAMPLE_ID == SAMPLE_POP.SAMPLE_ID) \
             .filter(SAMPLE_POP.POPULATION == population) \
             .all()
-        
+        # Append the values of V1 to V5
         for entry in admixture_data:
             data['Population'].append(population)
             for i, value in enumerate(entry, 1):
                 data[f'V{i}'].append(value)
-
+#dataframe containing the V1-V5 values for the selected populations
     return pd.DataFrame(data)
 ###SUPERPOP QUERY
 def query_superpopulations(selected_superpopulations):
+    #if no superpopulations selected return none
     if not selected_superpopulations:
         return None
-    
+    #dictionary to contain superpopulation and its V1-V5 values
     data = {'Superpopulation': [], **{f'V{i}': [] for i in range(1, 6)}}
-
+#iterate through each of the selected superpopulation and query the ADMIXTURE(joined with samplepop) data
     for superpopulation in selected_superpopulations:
         admixture_data = db.session.query(ADMIXTURE.V1, ADMIXTURE.V2, ADMIXTURE.V3, ADMIXTURE.V4, ADMIXTURE.V5) \
             .join(SAMPLE_POP, ADMIXTURE.SAMPLE_ID == SAMPLE_POP.SAMPLE_ID) \
@@ -237,23 +241,27 @@ def query_superpopulations(selected_superpopulations):
         
         for entry in admixture_data:
             data['Superpopulation'].append(superpopulation)
+            # Append the values of V1 to V5
             for i, value in enumerate(entry, 1):
                 data[f'V{i}'].append(value)
-
+#dataframe containing the V1-V5 values for the selected superpopulations
     return pd.DataFrame(data)
 
 @app.route('/AdmixturePlot', methods=['POST'])
 def AdmixturePlot():
+    #gets selected populations/superpopulations from user input
     selected_populations = request.form.getlist('populations')
     selected_superpopulations = request.form.getlist('superpopulations')
     if not selected_populations and not selected_superpopulations:
+        #if none are selected return page saying must select at least one
         return "Please select at least one population or superpopulation to visualize ADMIXTURE results", 400
-
+       
+    #gets dataframes from functions above depending on input
     population_df = query_populations(selected_populations)
     superpopulation_df = query_superpopulations(selected_superpopulations)
-
+#creates matplotlib figure
     fig, ax = plt.subplots(figsize=(12, 8))
-
+    #plots barchart for population data
     if population_df is not None:
         groups = population_df.groupby(population_df.columns[0])
 
@@ -262,14 +270,14 @@ def AdmixturePlot():
             for col in group.columns[1:]:
                 ax.bar(i, group[col], bottom=bottom, label=col if i == 0 else "", color=cluster_colors[col], width=0.8)
                 bottom += group[col].values
-
+      #sets labels on axis
         ax.set_xlabel('Population', fontsize=14)
         ax.set_ylabel('Ancestry Fraction', fontsize=14)
         ax.set_title('Admixture Analysis Bar Chart', fontsize=16)
         ax.set_xticks(range(len(groups)))
         ax.set_xticklabels([name for name, _ in groups], rotation=45, ha="right")
         ax.legend(title='Ancestors', bbox_to_anchor=(1.05, 1), loc='upper left')
-
+  #plots barchart for superpop data
     elif superpopulation_df is not None:
         groups = superpopulation_df.groupby(superpopulation_df.columns[0])
 
@@ -278,7 +286,7 @@ def AdmixturePlot():
             for col in group.columns[1:]:
                 ax.bar(i, group[col], bottom=bottom, label=col if i == 0 else "", color=cluster_colors[col], width=0.8)
                 bottom += group[col].values
-
+     #sets labels on axis
         ax.set_xlabel('Superpopulation', fontsize=14)
         ax.set_ylabel('Admixture Analysis Bar Chart', fontsize=14)
         ax.set_title('Ancestry Proportions', fontsize=16)
