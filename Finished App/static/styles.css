@@ -1,0 +1,42 @@
+
+body {
+    font-family: "Audiowide", sans-serif;
+}
+
+header {
+    background-color: #07215ae3;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    border-bottom: 2px solid white;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+header:hover {
+    background-color: rgba(237, 230, 230, 0.231);
+    color: #052976;
+}
+
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+
+.checkbox-container {
+    background-color: darkblue;
+    color: white;
+    padding: 5px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    display: inline-block;
+    transition: background-color 0.3s ease; /* Add smooth transition */
+}
+
+.checkbox-container:hover {
+    background-color: white;
+    color: darkblue;
+}
+
